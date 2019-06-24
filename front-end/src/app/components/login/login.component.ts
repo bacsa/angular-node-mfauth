@@ -25,6 +25,7 @@ export class LoginComponent implements OnInit {
     this._loginService.loginAuth(this.userObject).subscribe((data) => {
       this.errorMessage = null;
       if (data.body['status'] === 200) {
+        localStorage.setItem('jwtoken',JSON.stringify(data.body['message']));
         this._loginService.updateAuthStatus(true);
         this._router.navigateByUrl('/home');
       }

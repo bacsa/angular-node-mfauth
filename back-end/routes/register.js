@@ -1,27 +1,33 @@
 const express = require('express');
+const User = require('../models/User');
+const auth = require('../middleware/auth');
 const commons = require('./commons');
 const router = express.Router();
 
-router.post('/register', (req, res) => {
+router.post('/register', async (req, res) => {
     console.log(`DEBUG: Received request to register user`);
+    
+    commons.userObject.email = req.body.uname;
+    commons.userObject.password = req.body.upass;
+    // Create a new user
+    try {
+        const user = new User(commons.userObject)
+        await user.save()
+        const token = await user.generateAuthToken()
 
-    const result = req.body;
-
-    if ((!result.uname && !result.upass) || (result.uname.trim() == "" || result.upass.trim() == "")) {
+        commons.userObject.token = token;
+        delete commons.userObject.tfa;
+        
+        return res.send({
+            "status": 200,
+            "message": token
+        });
+    } catch (error) {
         return res.send({
             "status": 400,
-            "message": "Username/ password is required"
+            "message": error
         });
     }
-
-    commons.userObject.uname = result.uname;
-    commons.userObject.upass = result.upass;
-    delete commons.userObject.tfa;
-
-    return res.send({
-        "status": 200,
-        "message": "User is successfully registered"
-    });
 });
 
 module.exports = router;

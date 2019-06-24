@@ -25,8 +25,13 @@ export class LoginServiceService {
     return this._http.post("http://localhost:3000/login", { uname: userObj.uname, upass: userObj.upass }, { observe: 'response', headers: this.headerOptions });
   }
 
-  setupAuth() {
-    return this._http.post("http://localhost:3000/tfa/setup", {}, { observe: 'response' })
+  setupAuth(jwtoken) {
+    this.headerOptions = new HttpHeaders({
+      'Content-Type': 'application/json',
+      'Authorization': jwtoken
+    });
+
+    return this._http.post("http://localhost:3000/tfa/setup", {}, { observe: 'response', headers: this.headerOptions })
   }
 
   registerUser(userObj: any) {
@@ -45,20 +50,46 @@ export class LoginServiceService {
   }
 
   logoutUser() {
+    console.log('logoutUser');
     this._isLoggedIn = false;
-    this.authSub.next(this._isLoggedIn);
+    this.authSub.next(this._isLoggedIn)
     localStorage.setItem('isLoggedIn', "false")
+
+    let jwtoken = localStorage.getItem('jwtoken')
+    localStorage.setItem('jwtoken', "")
+    
+    this.headerOptions = new HttpHeaders({
+      'Content-Type': 'application/json',
+      'Authorization': jwtoken
+    });
+    
+    return this._http.get("http://localhost:3000/tfa/delete", { observe: 'response', headers: this.headerOptions });
   }
 
-  getAuth() {
-    return this._http.get("http://localhost:3000/tfa/setup", { observe: 'response' });
+  getAuth(jwtoken) {
+    this.headerOptions = new HttpHeaders({
+      'Content-Type': 'application/json',
+      'Authorization': jwtoken
+    });
+
+    return this._http.get("http://localhost:3000/tfa/setup/", { observe: 'response', headers: this.headerOptions });
   }
 
-  deleteAuth() {
-    return this._http.delete("http://localhost:3000/tfa/setup", { observe: 'response' });
+  deleteAuth(jwtoken) {
+    this.headerOptions = new HttpHeaders({
+      'Content-Type': 'application/json',
+      'Authorization': jwtoken
+    });
+    
+    return this._http.get("http://localhost:3000/tfa/delete", { observe: 'response', headers: this.headerOptions });
   }
 
-  verifyAuth(token: any) {
-    return this._http.post("http://localhost:3000/tfa/verify", { token }, { observe: 'response' });
+  verifyAuth(jwtoken, authcode) {
+    this.headerOptions = new HttpHeaders({
+      'Content-Type': 'application/json',
+      'Authorization': jwtoken
+    });
+
+    return this._http.post("http://localhost:3000/tfa/verify", {authcode: authcode}, { observe: 'response', headers: this.headerOptions });
   }
 }

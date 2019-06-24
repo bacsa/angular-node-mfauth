@@ -26,11 +26,14 @@ export class RegisterComponent implements OnInit {
     if (this.userObject.uname.trim() !== "" && this.userObject.upass.trim() !== "" && (this.userObject.upass.trim() === this.confirmPass))
       this._loginService.registerUser(this.userObject).subscribe((data) => {
         const result = data.body
+
         if (result['status'] === 200) {
           this.errorMessage = result['message'];
           setTimeout(() => {
             this._router.navigate(['/login']);
           }, 2000);
+        }else{
+          this.errorMessage = result['message'];
         }
       });
   }

@@ -20,10 +20,10 @@ export class HomeComponent implements OnInit {
   }
 
   getAuthDetails() {
-    this._loginService.getAuth().subscribe((data) => {
+    let jwtoken=JSON.parse(localStorage.getItem('jwtoken'));
+    this._loginService.getAuth(jwtoken).subscribe((data) => {
       const result = data.body
       if (data['status'] === 200) {
-        console.log(result);
         if (result == null) {
           this.setup();
         } else {
@@ -34,20 +34,20 @@ export class HomeComponent implements OnInit {
   }
 
   setup() {
-    this._loginService.setupAuth().subscribe((data) => {
+    let jwtoken=JSON.parse(localStorage.getItem('jwtoken'));
+    this._loginService.setupAuth(jwtoken).subscribe((data) => {
       const result = data.body
       if (data['status'] === 200) {
-        console.log(result);
         this.tfa = result;
       }
     });
   }
 
   confirm() {
-    this._loginService.verifyAuth(this.authcode).subscribe((data) => {
+    let jwtoken=JSON.parse(localStorage.getItem('jwtoken'));
+    this._loginService.verifyAuth(jwtoken, this.authcode).subscribe((data) => {
       const result = data.body
       if (result['status'] === 200) {
-        console.log(result);
         this.errorMessage = null;
         this.tfa.secret = this.tfa.tempSecret;
         this.tfa.tempSecret = "";
@@ -58,10 +58,10 @@ export class HomeComponent implements OnInit {
   }
 
   disabledTfa() {
-    this._loginService.deleteAuth().subscribe((data) => {
+    let jwtoken=JSON.parse(localStorage.getItem('jwtoken'));
+    this._loginService.deleteAuth(jwtoken).subscribe((data) => {
       const result = data.body
       if (data['status'] === 200) {
-        console.log(result);
         this.authcode = "";
         this.getAuthDetails();
       }
